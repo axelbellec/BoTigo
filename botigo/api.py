@@ -56,6 +56,9 @@ def webhook():
                     # Someone sent us his location
                     if bot.has_location_payload(messaging_event):
                         coordinates = bot.get_location_payload(messaging_event)
+                        log.info('coordinates', coordinates=coordinates)
+                        bot.send_fb_msg(sender_id, 'Vos coordonnées : (lat={lat}, lon={lon})'.format(
+                            lat=coordinates['lat'], lon=coordinates['long']))
 
                     if bot.has_quick_reply(messaging_event):
                         pass
