@@ -1,0 +1,4 @@
+DateTime==4.1.1
+Flask==0.11.1
+requests==2.11.1
+structlog==16.1.0
