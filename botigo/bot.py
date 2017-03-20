@@ -105,18 +105,18 @@ class Bot():
                 'quick_replies': [
                     {
                         'content_type': 'text',
-                        'title': 'Tram',
-                        'payload': 'tram U+1F68A'
+                        'title': 'Tram \ud83d\ude8b',
+                        'payload': 'tram'
                     },
                     {
                         'content_type': 'text',
-                        'title': 'Bus',
-                        'payload': 'bus U+1F68C'
+                        'title': 'Bus \ud83d\ude8c',
+                        'payload': 'bus'
                     },
                     {
                         'content_type': 'text',
-                        'title': 'Vélo',
-                        'payload': 'velo U+1F6B2'
+                        'title': 'Vélo \ud83d\udeb2',
+                        'payload': 'velo'
                     }
                 ]
             }
