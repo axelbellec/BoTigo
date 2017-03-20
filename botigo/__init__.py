@@ -11,7 +11,7 @@ app.config.from_object('botigo.config')
 import sys
 sys.path.append('..')
 
-import dotenv
-dotenv.load_dotenv(dotenv.find_dotenv())
+# import dotenv
+# dotenv.load_dotenv(dotenv.find_dotenv())
 
 from botigo import api
