@@ -72,6 +72,11 @@ def webhook():
                         # The message's text
                         message_text = messaging_event['message'].get('text')
 
+                        if message_text.lower() == 'kind':
+                            bot.send_kind_msg(sender_id, msg='Quel type de transport voulez-vous prendre ?')
+                        elif message_text.lower() == 'moment':
+                            bot.send_moment_msg(sender_id, msg='Dans combien de temps voulez-vous partir ?')
+
                         bot.send_fb_msg(sender_id, message_text)
 
                         if bot.has_sticker_payload(messaging_event):

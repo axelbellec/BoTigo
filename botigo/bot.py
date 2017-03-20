@@ -100,13 +100,18 @@ class Bot():
                 'quick_replies': [
                     {
                         'content_type': 'text',
-                        'title': 'Prendre un vélo',
-                        'payload': 'prendre'
+                        'title': 'Tram',
+                        'payload': 'tram'
                     },
                     {
                         'content_type': 'text',
-                        'title': 'Poser un vélo',
-                        'payload': 'déposer'
+                        'title': 'Bus',
+                        'payload': 'bus'
+                    },
+                    {
+                        'content_type': 'text',
+                        'title': 'Vélo',
+                        'payload': 'velo'
                     }
                 ]
             }
