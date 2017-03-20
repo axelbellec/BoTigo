@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+
+  server:
+    build: .
+    stdin_open: true
+    tty: true
+    env_file: .env
+    working_dir: /botigo
+    volumes:
+      - .:/botigo
+    ports:
+      - 5000:5000
+    command: python
