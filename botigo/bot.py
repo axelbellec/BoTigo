@@ -101,17 +101,17 @@ class Bot():
                     {
                         'content_type': 'text',
                         'title': 'Tram',
-                        'payload': 'tram'
+                        'payload': 'tram U+1F68A'
                     },
                     {
                         'content_type': 'text',
                         'title': 'Bus',
-                        'payload': 'bus'
+                        'payload': 'bus U+1F68C'
                     },
                     {
                         'content_type': 'text',
                         'title': 'Vélo',
-                        'payload': 'velo'
+                        'payload': 'velo U+1F6B2'
                     }
                 ]
             }
