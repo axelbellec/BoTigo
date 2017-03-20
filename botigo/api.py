@@ -68,6 +68,10 @@ def webhook():
                     # Someone sent us a message
                     if not bot.has_location_payload(messaging_event) and not bot.has_quick_reply(messaging_event):
 
+                        if bot.has_sticker_payload(messaging_event):
+                            log.info('user sent a sticker')
+                            continue
+
                         # The recipient's ID, which should be our page's facebook ID
                         recipient_id = messaging_event['recipient']['id']
                         # The message's text
@@ -79,9 +83,6 @@ def webhook():
                             bot.send_moment_msg(sender_id, msg='Dans combien de temps voulez-vous partir ?')
                         else:
                             bot.send_fb_msg(sender_id, message_text)
-
-                        if bot.has_sticker_payload(messaging_event):
-                            log.info('user sent a sticker')
 
                             # Delivery confirmation
                 if messaging_event.get('delivery'):
