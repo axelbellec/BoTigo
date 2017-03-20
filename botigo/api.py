@@ -62,7 +62,8 @@ def webhook():
                             lat=coordinates['lat'], lon=coordinates['long']))
 
                     if bot.has_quick_reply(messaging_event):
-                        pass
+                        quick_reply_text = bot.get_quick_reply(messaging_event)
+                        bot.send_fb_msg(sender_id, quick_reply_text)
 
                     # Someone sent us a message
                     if not bot.has_location_payload(messaging_event) and not bot.has_quick_reply(messaging_event):
@@ -76,8 +77,8 @@ def webhook():
                             bot.send_kind_msg(sender_id, msg='Quel type de transport voulez-vous prendre ?')
                         elif message_text.lower() == 'moment':
                             bot.send_moment_msg(sender_id, msg='Dans combien de temps voulez-vous partir ?')
-
-                        bot.send_fb_msg(sender_id, message_text)
+                        else:
+                            bot.send_fb_msg(sender_id, message_text)
 
                         if bot.has_sticker_payload(messaging_event):
                             log.info('user sent a sticker')
