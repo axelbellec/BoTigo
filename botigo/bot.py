@@ -5,6 +5,11 @@ import requests
 
 
 from botigo import config
+from botigo import NAMESPACE
+from botigo import logging
+
+
+log = logging.tracer(NAMESPACE)
 
 
 class Bot():
@@ -39,8 +44,8 @@ class Bot():
         return {}
 
     def send_fb_msg(self, recipient_id, message_text):
-        print('sending message to {recipient}: {text}'.format(
-            recipient=recipient_id, text=message_text))
+
+        log.info('sending message', recipient=recipient_id, text=message_text)
 
         data = json.dumps({
             'recipient': {
