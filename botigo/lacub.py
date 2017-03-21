@@ -1,12 +1,13 @@
 import requests
 
+from botigo import app
+
 payload = {
     'key': app.config['LACUB_API_KEY'],
-    'SERVICE': 'WFS',
-    'VERSION': '1.1.1',
-    'REQUEST': 'GetFeature',
-    'TYPENAME': 'TB_CHEM_L',
-    'SRSNAME': 'EPSG:4326'
+    'SERVICE': 'WPS',
+    'VERSION': '1.0.0',
+    'REQUEST': 'Execute',
+    'IDENTIFIER': 'saeiv_arret_passages'
 }
 
-response = requests.get('http://data.lacub.fr/wfs', params=payload)
+response = requests.get('http://data.lacub.fr/wps', params=payload)

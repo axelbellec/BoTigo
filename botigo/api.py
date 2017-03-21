@@ -5,6 +5,8 @@ import pickle
 from flask import Blueprint, jsonify, request
 import datetime as dt
 
+# from wit import Wit
+
 from botigo import app
 from botigo.bot import Bot
 from botigo import config
@@ -16,6 +18,11 @@ FB_VERIFY_TOKEN = config.FB_VERIFY_TOKEN
 bot = Bot(config.FB_ACCESS_TOKEN)
 
 log = logging.tracer(NAMESPACE)
+
+
+# TODO: Add actions methods
+# actions = {}
+# WitAI = Wit(access_token=config.WIT_AI_CLIENT_ACCESS_TOKEN, actions=actions)
 
 
 @app.route('/ping', methods=['GET'])
