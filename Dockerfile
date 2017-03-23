@@ -4,7 +4,7 @@
 
 FROM python:3.5
 
-MAINTAINER Axel Bellec
+MAINTAINER contact.botigo@gmail.com
 
 # Get the pip packages and clean up
 COPY requirements.txt /tmp/requirements.txt

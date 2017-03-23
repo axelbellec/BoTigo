@@ -57,7 +57,7 @@ class Bot():
         })
         self.post_payload(data)
 
-    def send_card_msg(self, recipient_id, elements=[]):
+    def send_card_msg(self, recipient_id, elements):
 
         data = json.dumps({
             'recipient': {
@@ -153,11 +153,9 @@ class Bot():
         })
         self.post_payload(data)
 
-    def get_user_fullname(self, recipient_id, fields=['first_name', 'last_name']):
+    def get_user_fullname(self, recipient_id):
         params = copy.deepcopy(self.params)
-
-        if fields is not None and isinstance(fields, (list, tuple)):
-            params['fields'] = ','.join(fields)
+        params['fields'] = ','.join(['first_name', 'last_name'])
 
         request_endpoint = '{}/{}'.format(self.graph_url, recipient_id)
         res = requests.get(request_endpoint, params=params, headers=self.headers)
@@ -166,29 +164,40 @@ class Bot():
             return res.json()
         return None
 
-    def has_location_payload(self, messaging_event):
+    @classmethod
+    def has_location_payload(cls, messaging_event):
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['coordinates']
-            return True
-        except:
+        except KeyError:
             return False
+        except Exception as err:
+            return False
+        return True
 
-    def has_sticker_payload(self, messaging_event):
+    @classmethod
+    def has_sticker_payload(cls, messaging_event):
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['sticker_id']
-            return True
-        except:
+        except KeyError:
             return False
+        except Exception as err:
+            return False
+        return True
 
-    def get_location_payload(self, messaging_event):
+    @classmethod
+    def get_location_payload(cls, messaging_event):
         return messaging_event['message']['attachments'][0]['payload']['coordinates']
 
-    def has_quick_reply(self, messaging_event):
+    @classmethod
+    def has_quick_reply(cls, messaging_event):
         try:
             _ = messaging_event['message']['quick_reply']
-            return True
-        except:
+        except KeyError:
             return False
+        except Exception as err:
+            return False
+        return True
 
-    def get_quick_reply(self, messaging_event):
+    @classmethod
+    def get_quick_reply(cls, messaging_event):
         return messaging_event['message']['text']
