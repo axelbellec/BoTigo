@@ -4,6 +4,16 @@
   </div>
 <div>
 
+<div align="center">
+    <a href="https://www.codacy.com/app/axel-bellec/BoTigo?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=axelbellec/BoTigo&amp;utm_campaign=Badge_Grade">
+    	<img src="https://api.codacy.com/project/badge/Grade/e4d6711d1d5f43f8ac36a25f1944c1ee"/>
+    </a>
+	<a href="https://opensource.org/licenses/MIT">
+		<img src="http://img.shields.io/:license-mit-ff69b4.svg?style=flat-square" alt="mit"/>
+	</a>
+</div>
+
+
 # BoTigo
 
 Facebook Messenger Bot.
