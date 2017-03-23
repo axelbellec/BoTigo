@@ -167,8 +167,10 @@ class Bot():
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['coordinates']
         except KeyError:
+            log.error('KeyError: Unable to access coordinates from message attachments.')
             return False
         except Exception as err:
+            log.error('Exception: Unable to access coordinates from message attachments.', err=err)
             return False
         return True
 
@@ -177,8 +179,10 @@ class Bot():
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['sticker_id']
         except KeyError:
+            log.error('KeyError: Unable to access sticker_id from message attachments.')
             return False
         except Exception as err:
+            log.error('Exception: Unable to access sticker_id from message attachments.', err=err)
             return False
         return True
 
@@ -191,8 +195,10 @@ class Bot():
         try:
             _ = messaging_event['message']['quick_reply']
         except KeyError:
+            log.error('KeyError: Unable to access quick reply from message.')
             return False
         except Exception as err:
+            log.error('Exception: Unable to access quick reply from message.', err=err)
             return False
         return True
 
