@@ -1,7 +1,7 @@
 import datetime as dt
 import requests
 
-from botigo import app
+from botigo import config
 from botigo import util
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -9,15 +9,16 @@ DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 class LacubAPI(object):
 
-    def __init__(self):
-        self.api_key = app.config['LACUB_API_KEY']
-        self.base_url = 'http://data.lacub.fr'
+    API_KEY = config.LACUB_API_KEY
+    BASE_URL = 'http://data.lacub.fr'
 
-    def get_stops(self):
+    @classmethod
+    def get_stops(cls):
         """ Retrieve all stops. """
 
+        print(cls.API_KEY)
         payload = {
-            'KEY': self.api_key,
+            'KEY': cls.API_KEY,
             'SERVICE': 'WFS',
             'VERSION': '1.1.0',
             'REQUEST': 'GetFeature',
@@ -25,11 +26,12 @@ class LacubAPI(object):
             'SRSNAME': 'EPSG:4326'
         }
 
-        response = requests.get('{}/wfs'.format(self.base_url), params=payload)
+        response = requests.get('{}/wfs'.format(cls.BASE_URL), params=payload)
         stops = util.load_xml(response.content)
-        return self._normalize(stops)
+        return cls.normalize(stops)
 
-    def _normalize(self, stops):
+    @staticmethod
+    def normalize(stops):
         """ Normalize each feature parsed by BeautifulSoup. """
 
         extract = util.extract_element
