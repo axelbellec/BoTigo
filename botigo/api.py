@@ -1,9 +1,4 @@
-import json
-import os
-import pickle
-
-from flask import Blueprint, jsonify, request
-import datetime as dt
+from flask import jsonify, request
 
 # from wit import Wit
 
@@ -80,7 +75,7 @@ def webhook():
                             continue
 
                         # The recipient's ID, which should be our page's facebook ID
-                        recipient_id = messaging_event['recipient']['id']
+                        _ = messaging_event['recipient']['id']
                         # The message's text
                         message_text = messaging_event['message'].get('text')
 

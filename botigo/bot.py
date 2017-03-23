@@ -1,8 +1,6 @@
 import copy
-import os
 import json
 import requests
-
 
 from botigo import config
 from botigo import NAMESPACE

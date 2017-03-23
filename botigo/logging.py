@@ -1,7 +1,6 @@
 import os
 import logging
 import structlog
-import json
 
 LOG_DEFAULT_LEVEL = 'info'
 
