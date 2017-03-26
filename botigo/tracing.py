@@ -19,8 +19,7 @@ def log_factory(handler, level, namespace):
             structlog.stdlib.filter_by_level,
             structlog.stdlib.add_log_level,
             structlog.stdlib.add_logger_name,
-            structlog.processors.TimeStamper(fmt='iso', utc=True, key='created_at'),
-            structlog.processors.JSONRenderer()
+            structlog.processors.TimeStamper(fmt='iso', utc=True, key='created_at')
         ]
     )
 

@@ -4,10 +4,10 @@ import requests
 
 from botigo import config
 from botigo import NAMESPACE
-from botigo import logging
+from botigo import tracing
 
 
-log = logging.tracer(NAMESPACE)
+log = tracing.tracer(NAMESPACE)
 
 
 class Bot():

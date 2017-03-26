@@ -5,14 +5,14 @@ from flask import jsonify, request
 from botigo import app
 from botigo.bot import Bot
 from botigo import config
-from botigo import logging
+from botigo import tracing
 from botigo import NAMESPACE
 
 FB_VERIFY_TOKEN = config.FB_VERIFY_TOKEN
 
 bot = Bot(config.FB_ACCESS_TOKEN)
 
-log = logging.tracer(NAMESPACE)
+log = tracing.tracer(NAMESPACE)
 
 
 # TODO: Add actions methods

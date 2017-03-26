@@ -16,7 +16,6 @@ class LacubAPI(object):
     def get_stops(cls):
         """ Retrieve all stops. """
 
-        print(cls.API_KEY)
         payload = {
             'KEY': cls.API_KEY,
             'SERVICE': 'WFS',

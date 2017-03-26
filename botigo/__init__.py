@@ -11,8 +11,4 @@ app.config.from_object('botigo.config')
 import sys
 sys.path.append('..')
 
-# FIXME: unable to load env var in development mode
-# import dotenv
-# dotenv.load_dotenv(dotenv.find_dotenv())
-
 from botigo import api
