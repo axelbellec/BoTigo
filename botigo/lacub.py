@@ -4,7 +4,8 @@ import requests
 from botigo import config
 from botigo import util
 
-DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+WFS_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+WPS_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 
 class LacubAPI(object):
@@ -30,8 +31,7 @@ class LacubAPI(object):
         return cls.normalize_stops(stops)
 
     @classmethod
-    def get_lines(cls):
-        # http://data.bordeaux-metropole.fr/wfs?key=[VOTRECLE]&REQUEST=GetFeature&SERVICE=WFS&VERSION=1.1.0&TYPENAME=bm:TB_CHEM_L&SRSNAME=EPSG:3945&PROPERTYNAME=NUMEXPLO,LONGCHEM,COULCHEM,NBPARJOH,NBPARJOE,RH_TB_LIGNE,CDATE,MDATE
+    def get_paths(cls):
 
         payload = {
             'KEY': cls.API_KEY,
@@ -43,8 +43,38 @@ class LacubAPI(object):
         }
 
         response = requests.get('{}/wfs'.format(cls.BASE_URL), params=payload)
+        paths = util.load_xml(response.content)
+        return cls.normalize_paths(paths)
+
+    @classmethod
+    def get_lines(cls):
+
+        payload = {
+            'KEY': cls.API_KEY,
+            'SERVICE': 'WPS',
+            'VERSION': '1.0.0',
+            'REQUEST': 'Execute',
+            'IDENTIFIER': 'SV_LIGNE_A'
+        }
+
+        response = requests.get('{}/wps'.format(cls.BASE_URL), params=payload)
         lines = util.load_xml(response.content)
         return cls.normalize_lines(lines)
+
+    @classmethod
+    def get_lines_paths(cls):
+
+        payload = {
+            'KEY': cls.API_KEY,
+            'SERVICE': 'WPS',
+            'VERSION': '1.0.0',
+            'REQUEST': 'Execute',
+            'IDENTIFIER': 'SV_CHEM_A'
+        }
+
+        response = requests.get('{}/wps'.format(cls.BASE_URL), params=payload)
+        lines_paths = util.load_xml(response.content)
+        return cls.normalize_lines_paths(lines_paths)
 
     @staticmethod
     def normalize_stops(stops):
@@ -59,8 +89,8 @@ class LacubAPI(object):
             'latitude': float(extract(stop, 'gml:pos').split(' ')[0]),
             'longitude': float(extract(stop, 'gml:pos').split(' ')[1]),
             'type': extract(stop, 'bm:type'),
-            'cdate': dt.datetime.strptime(extract(stop, 'bm:cdate'), DATE_FORMAT).isoformat(),
-            'mdate': dt.datetime.strptime(extract(stop, 'bm:mdate'), DATE_FORMAT).isoformat()
+            'cdate': dt.datetime.strptime(extract(stop, 'bm:cdate'), WFS_DATE_FORMAT).isoformat(),
+            'mdate': dt.datetime.strptime(extract(stop, 'bm:mdate'), WFS_DATE_FORMAT).isoformat()
         }
 
         return [
@@ -69,28 +99,68 @@ class LacubAPI(object):
         ]
 
     @staticmethod
+    def normalize_paths(paths):
+        """ Normalize each feature parsed by BeautifulSoup. """
+
+        extract = util.extract_element
+        normalized = lambda path: {
+            'nomcomch': extract(path, 'bm:nomcomch'),
+            'nomcomli': extract(path, 'bm:nomcomli'),
+            'gid': extract(path, 'bm:gid'),
+            'ident': extract(path, 'bm:ident'),
+            'idardeb': extract(path, 'bm:idardeb'),
+            'idarfin': extract(path, 'bm:idarfin'),
+            'sens': extract(path, 'bm:sens'),
+            'numexplo': extract(path, 'bm:numexplo'),
+            'rh_tb_ligne': extract(path, 'bm:rh_tb_ligne'),
+            'cdate': dt.datetime.strptime(extract(path, 'bm:cdate'), WFS_DATE_FORMAT).isoformat(),
+            'mdate': dt.datetime.strptime(extract(path, 'bm:mdate'), WFS_DATE_FORMAT).isoformat()
+        }
+
+        return [
+            normalized(path)
+            for path in paths.find_all('gml:featuremember')
+        ]
+
+    @staticmethod
     def normalize_lines(lines):
         """ Normalize each feature parsed by BeautifulSoup. """
 
         extract = util.extract_element
         normalized = lambda line: {
-            'nomcomch': extract(line, 'bm:nomcomch'),
-            'nomcomli': extract(line, 'bm:nomcomli'),
             'gid': extract(line, 'bm:gid'),
-            'ident': extract(line, 'bm:ident'),
-            'idardeb': extract(line, 'bm:idardeb'),
-            'idarfin': extract(line, 'bm:idarfin'),
-            'sens': extract(line, 'bm:sens'),
-            'numexplo': extract(line, 'bm:numexplo'),
-            'rh_tb_ligne': extract(line, 'bm:rh_tb_ligne'),
+            'libelle': extract(line, 'bm:libelle'),
+            'active': extract(line, 'bm:active'),
             'type': extract(line, 'bm:type'),
-            'cdate': dt.datetime.strptime(extract(line, 'bm:cdate'), DATE_FORMAT).isoformat(),
-            'mdate': dt.datetime.strptime(extract(line, 'bm:mdate'), DATE_FORMAT).isoformat()
+            'cdate': dt.datetime.strptime(extract(line, 'bm:cdate'), WPS_DATE_FORMAT).isoformat(),
+            'mdate': dt.datetime.strptime(extract(line, 'bm:mdate'), WPS_DATE_FORMAT).isoformat()
         }
 
         return [
             normalized(line)
             for line in lines.find_all('gml:featuremember')
+        ]
+
+    @staticmethod
+    def normalize_lines_paths(lines_paths):
+        """ Normalize each feature parsed by BeautifulSoup. """
+
+        extract = util.extract_element
+        normalized = lambda line_path: {
+            'gid': extract(line_path, 'bm:gid'),
+            'libelle': extract(line_path, 'bm:libelle'),
+            'sens': extract(line_path, 'bm:sens'),
+            'type': extract(line_path, 'bm:type'),
+            'rs_sv_arret_p_nd': extract(line_path, 'bm:rs_sv_arret_p_nd'),
+            'rs_sv_arret_p_na': extract(line_path, 'bm:rs_sv_arret_p_na'),
+            'rs_sv_ligne_a': extract(line_path, 'bm:rs_sv_ligne_a'),
+            'cdate': dt.datetime.strptime(extract(line_path, 'bm:cdate'), WPS_DATE_FORMAT).isoformat(),
+            'mdate': dt.datetime.strptime(extract(line_path, 'bm:mdate'), WPS_DATE_FORMAT).isoformat()
+        }
+
+        return [
+            normalized(line_path)
+            for line_path in lines_paths.find_all('gml:featuremember')
         ]
 
 
