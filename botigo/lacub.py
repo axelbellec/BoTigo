@@ -76,6 +76,24 @@ class LacubAPI(object):
         lines_paths = util.load_xml(response.content)
         return cls.normalize_lines_paths(lines_paths)
 
+    @classmethod
+    def get_path_stops(cls, gid):
+
+        # http://data.bordeaux-metropole.fr/wps?key=SBXV78WZQ0&service=WPS&version=1.0.0&SRSNAME=EPSG:4326&request=execute&Identifier=saeiv_arrets_chemin&DATAINPUTS=gid=267436926
+        payload = {
+            'KEY': cls.API_KEY,
+            'SERVICE': 'WPS',
+            'VERSION': '1.0.0',
+            'REQUEST': 'Execute',
+            'IDENTIFIER': 'saeiv_arrets_chemin',
+            'SRSNAME': 'EPSG:4326',
+            'DATAINPUTS': 'GID={}'.format(gid)
+        }
+
+        response = requests.get('{}/wps'.format(cls.BASE_URL), params=payload)
+        path_stops = util.load_xml(response.content)
+        return cls.normalize_path_stops(path_stops)
+
     @staticmethod
     def normalize_stops(stops):
         """ Normalize each feature parsed by BeautifulSoup. """
@@ -161,6 +179,26 @@ class LacubAPI(object):
         return [
             normalized(line_path)
             for line_path in lines_paths.find_all('gml:featuremember')
+        ]
+
+    @staticmethod
+    def normalize_path_stops(path_stops):
+        """ Normalize each feature parsed by BeautifulSoup. """
+
+        extract = util.extract_element
+        normalized = lambda path_stop: {
+            'gid': extract(path_stop, 'bm:gid'),
+            'geom_o': extract(path_stop, 'bm:geom_o'),
+            'ident': extract(path_stop, 'bm:ident'),
+            'groupe': extract(path_stop, 'bm:groupe'),
+            'libelle': extract(path_stop, 'bm:libelle'),
+            'type': extract(path_stop, 'bm:type'),
+            'ordre': extract(path_stop, 'bm:ordre')
+        }
+
+        return [
+            normalized(path_stop)
+            for path_stop in path_stops.find_all('gml:featuremember')
         ]
 
 

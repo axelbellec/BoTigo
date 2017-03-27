@@ -92,7 +92,7 @@ class Bot():
 
         self.post_payload(data)
 
-    def send_kind_msg(self, recipient_id, msg):
+    def send_quick_reply(self, recipient_id, msg, quick_replies):
 
         data = json.dumps({
             'recipient': {
@@ -103,19 +103,9 @@ class Bot():
                 'quick_replies': [
                     {
                         'content_type': 'text',
-                        'title': 'Tram \ud83d\ude8b',
-                        'payload': 'tram'
-                    },
-                    {
-                        'content_type': 'text',
-                        'title': 'Bus \ud83d\ude8c',
-                        'payload': 'bus'
-                    },
-                    {
-                        'content_type': 'text',
-                        'title': 'Vélo \ud83d\udeb2',
-                        'payload': 'velo'
-                    }
+                        'title': quick_reply,
+                        'payload': quick_reply.lower()
+                    } for quick_reply in quick_replies
                 ]
             }
         })
@@ -167,7 +157,7 @@ class Bot():
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['coordinates']
         except KeyError:
-            log.error('KeyError: Unable to access coordinates from message attachments.')
+            log.debug('KeyError: Unable to access coordinates from message attachments.')
             return False
         except Exception as err:
             log.error('Exception: Unable to access coordinates from message attachments.', err=err)
@@ -179,7 +169,7 @@ class Bot():
         try:
             _ = messaging_event['message']['attachments'][0]['payload']['sticker_id']
         except KeyError:
-            log.error('KeyError: Unable to access sticker_id from message attachments.')
+            log.debug('KeyError: Unable to access sticker_id from message attachments.')
             return False
         except Exception as err:
             log.error('Exception: Unable to access sticker_id from message attachments.', err=err)
@@ -195,7 +185,7 @@ class Bot():
         try:
             _ = messaging_event['message']['quick_reply']
         except KeyError:
-            log.error('KeyError: Unable to access quick reply from message.')
+            log.debug('KeyError: Unable to access quick reply from message.')
             return False
         except Exception as err:
             log.error('Exception: Unable to access quick reply from message.', err=err)

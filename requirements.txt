@@ -3,6 +3,7 @@ DateTime==4.1.1
 Flask==0.11.1
 requests==2.11.1
 structlog==16.1.0
+googlemaps==2.4.6
 gunicorn==19.7.0
 python-dotenv==0.6.3
 wit==4.2.0
