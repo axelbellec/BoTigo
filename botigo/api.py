@@ -1,8 +1,10 @@
-from flask import jsonify, request
-import googlemaps
-import datetime as dt
+import json
 
-from wit import Wit
+import apiai
+import datetime as dt
+import googlemaps
+
+from flask import jsonify, request, make_response
 
 from botigo import app
 from botigo.bot import Bot
@@ -18,67 +20,7 @@ log = tracing.tracer(NAMESPACE)
 
 gmaps = googlemaps.Client(key=config.GOOGLE_MAPS_GEOCODING_API)
 
-
-def send(request, response):
-    """ WIT AI sender function. """
-    session_id = request['session_id']
-    text = response['text'].decode('utf-8')
-    print(request['context'])
-    if response.get('quickreplies'):
-        bot.send_quick_reply(session_id, text, response['quickreplies'])
-    else:
-        bot.send_fb_msg(session_id, text)
-
-
-def merge(request):
-    context = request['context']
-    entities = request['entities']
-
-    kind_action = first_entity_value(entities, 'kind_action')
-    if kind_action:
-        context['kind_action'] = kind_action
-    destination = first_entity_value(entities, 'destination')
-    if destination:
-        context['destination'] = destination
-    date_depart = first_entity_value(entities, 'date-depart')
-    if date_depart:
-        context['date-depart'] = date_depart
-    travel_mode = first_entity_value(entities, 'TravelMode')
-    if travel_mode:
-        context['TravelMode'] = travel_mode
-    return context
-
-
-def first_entity_value(entities, entity):
-    if entity not in entities:
-        return None
-    val = entities[entity][0]['value']
-    if not val:
-        return None
-    return val['value'] if isinstance(val, dict) else val
-
-
-def get_directions(request):
-    context = request['context']
-    destination = context['destination']
-    travel_mode = context['TravelMode']
-    date = dt.datetime.now()
-    directions_result = gmaps.directions('Cdiscount, Bordeaux',
-                                         destination,
-                                         mode='transit',
-                                         transit_mode=travel_mode,
-                                         departure_time=now,
-                                         language='fr')
-    print(directions_result)
-
-
-actions = {
-    'send': send,
-    'merge': merge,
-    'get_directions': get_directions
-}
-
-WitAI = Wit(access_token=config.WIT_AI_CLIENT_ACCESS_TOKEN, actions=actions)
+ai = apiai.ApiAI(config.API_AI_CLIENT_ACCESS_TOKEN)
 
 
 @app.route('/ping', methods=['GET'])
@@ -104,7 +46,7 @@ def webhook():
 
     # Processing incoming messaging events
     data = request.get_json()
-    log.info('incoming messaging events', data=data)
+    log.debug('incoming messaging events', data=data)
 
     if data['object'] == 'page':
 
@@ -132,8 +74,8 @@ def webhook():
 
                     if bot.has_quick_reply(messaging_event):
                         quick_reply_text = bot.get_quick_reply(messaging_event)
-                        # bot.send_fb_msg(sender_id, quick_reply_text)
-                        WitAI.run_actions(session_id=sender_id, message=quick_reply_text)
+                        bot.send_fb_msg(sender_id, quick_reply_text)
+                        log.debug('quick reply', quick_reply=quick_reply_text)
 
                     # Someone sent us a message
                     if not bot.has_location_payload(messaging_event) and not bot.has_quick_reply(messaging_event):
@@ -146,14 +88,8 @@ def webhook():
                         _ = messaging_event['recipient']['id']
                         # The message's text
                         message_text = messaging_event['message']['text']
-
-                        # # if message_text.lower() == 'kind':
-                        # #     bot.send_kind_msg(sender_id, msg='Quel type de transport voulez-vous prendre ?')
-                        # # elif message_text.lower() == 'moment':
-                        # #     bot.send_moment_msg(sender_id, msg='Dans combien de temps voulez-vous partir ?')
-                        # # else:
-                        #     # bot.send_fb_msg(sender_id, message_text)
-                        WitAI.run_actions(session_id=sender_id, message=message_text)
+                        log.info('message received', sender_id=sender_id, message=message_text)
+                        bot.send_fb_msg(sender_id, message_text)
 
                 # Delivery confirmation
                 if messaging_event.get('delivery'):
@@ -168,3 +104,45 @@ def webhook():
                     pass
 
     return 'ok', 200
+
+
+@app.route('/apiai', methods=['POST'])
+def webhook_apiai():
+    req = request.get_json(silent=True, force=True)
+
+    print("Request:")
+    print(json.dumps(req, indent=4))
+
+    res = processRequest(req)
+    print(res)
+    res = json.dumps(res, indent=4)
+    # print(res)
+    response = make_response(res)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
+def processRequest(req):
+    if req.get("result").get("action") != "findNearestStops":
+        return {}
+    address = req['result']['contexts'][0]['parameters']['address']
+    kind_transport = req['result']['contexts'][0]['parameters']['kindTransport']
+    res = findNearestStops(address=address, kind_transport=kind_transport)
+    # print(res)
+    return {'action': 'done'}, 200
+
+
+def findNearestStops(address, kind_transport):
+    arrival = address + 'Bordeaux'
+    geocode_result = gmaps.geocode(arrival)
+    location = geocode_result[0]['geometry']['location']
+    now = dt.datetime.now()
+    directions = gmaps.directions(
+        origin='206 Bd du Président Franklin Roosevelt',
+        destination=arrival,
+        mode='transit',
+        transit_mode=kind_transport,
+        departure_time=now
+    )
+    print(directions)
+    return geocode_result
