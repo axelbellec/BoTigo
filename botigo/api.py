@@ -114,35 +114,48 @@ def webhook_apiai():
     print(json.dumps(req, indent=4))
 
     res = processRequest(req)
-    print(res)
+
     res = json.dumps(res, indent=4)
-    # print(res)
+    print(res)
+
     response = make_response(res)
     response.headers['Content-Type'] = 'application/json'
     return response
 
 
-def processRequest(req):
-    if req.get("result").get("action") != "findNearestStops":
+def processRequest(request):
+    if request.get("result").get("action") != "findNearestStops":
         return {}
-    address = req['result']['contexts'][0]['parameters']['address']
-    kind_transport = req['result']['contexts'][0]['parameters']['kindTransport']
-    res = findNearestStops(address=address, kind_transport=kind_transport)
-    # print(res)
-    return {'action': 'done'}, 200
+
+    last_context = request['result']['contexts'][-1]
+    start_address = last_context['parameters']['start-address']
+    destination_address = last_context['parameters']['destination-address']
+    kind_transport = last_context['parameters']['kindTransport']
+
+    response = findNearestStops(start=start_address, arrival=destination_address, kind_transport=kind_transport)
+
+    return response
 
 
-def findNearestStops(address, kind_transport):
-    arrival = address + 'Bordeaux'
-    geocode_result = gmaps.geocode(arrival)
-    location = geocode_result[0]['geometry']['location']
+def findNearestStops(start, arrival, kind_transport):
+    start = start + 'Bordeaux'
+    arrival = arrival + 'Bordeaux'
+    location = lambda address: gmaps.geocode(address)[0]['geometry']['location']
+
     now = dt.datetime.now()
     directions = gmaps.directions(
-        origin='206 Bd du Président Franklin Roosevelt',
-        destination=arrival,
+        origin=location(start),
+        destination=location(arrival),
+        language='fr',
         mode='transit',
         transit_mode=kind_transport,
         departure_time=now
     )
-    print(directions)
-    return geocode_result
+
+    duration = directions[0]['legs'][0]['duration']['text']
+    distance = directions[0]['legs'][0]['distance']['text']
+
+    return {
+        'speech': 'Durée prévue : {}\nDistance : {}'.format(duration, distance),
+        'displayText': 'Durée prévue : {}\nDistance : {}'.format(duration, distance)
+    }
