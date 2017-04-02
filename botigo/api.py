@@ -1,9 +1,11 @@
 import json
 
 import apiai
+import better_exceptions
 import datetime as dt
 import googlemaps
 
+from bs4 import BeautifulSoup
 from flask import jsonify, request, make_response
 
 from botigo import app
@@ -110,16 +112,16 @@ def webhook():
 def webhook_apiai():
     req = request.get_json(silent=True, force=True)
 
-    print("Request:")
-    print(json.dumps(req, indent=4))
+    log.info('receiving apiai request', request=req)
 
-    res = processRequest(req)
+    res = json.dumps(processRequest(req))
 
-    res = json.dumps(res, indent=4)
-    print(res)
+    log.info('processing apiai request', res=res)
 
     response = make_response(res)
-    response.headers['Content-Type'] = 'application/json'
+
+    log.info('making apiai response', response=response)
+
     return response
 
 
@@ -135,6 +137,19 @@ def processRequest(request):
     response = findNearestStops(start=start_address, arrival=destination_address, kind_transport=kind_transport)
 
     return response
+
+
+def findkeys(node, kv):
+    if isinstance(node, list):
+        for i in node:
+            for x in findkeys(i, kv):
+                yield x
+    elif isinstance(node, dict):
+        if kv in node:
+            yield node[kv]
+        for j in node.values():
+            for x in findkeys(j, kv):
+                yield x
 
 
 def findNearestStops(start, arrival, kind_transport):
@@ -154,8 +169,13 @@ def findNearestStops(start, arrival, kind_transport):
 
     duration = directions[0]['legs'][0]['duration']['text']
     distance = directions[0]['legs'][0]['distance']['text']
+    steps = directions[0]['legs'][0]['steps']
+
+    steps_instructions = '\n\n'.join(['\n'.join(list(findkeys(step, 'html_instructions'))) for step in steps])
+    soup = BeautifulSoup(steps_instructions, 'html.parser')
+    global_instructions = soup.get_text()
 
     return {
-        'speech': 'Durée prévue : {}\nDistance : {}'.format(duration, distance),
-        'displayText': 'Durée prévue : {}\nDistance : {}'.format(duration, distance)
+        'speech': 'Durée prévue : {}\nDistance : {}\n{}'.format(duration, distance, global_instructions),
+        'displayText': 'Durée prévue : {}\nDistance : {}\n{}'.format(duration, distance, global_instructions)
     }
