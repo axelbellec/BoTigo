@@ -50,6 +50,7 @@ def processRequest(request):
         direction = last_context.get('parameters', {}).get('direction', None)
 
         if stop and direction:
+            log.info('finding next departure times', stop=stop, direction=direction)
             msg = '\n'.join(departure_times)
             return {
                 'messages': [
