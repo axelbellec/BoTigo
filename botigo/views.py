@@ -76,7 +76,7 @@ def processRequest(request):
 
             log.info('sending next departure times', stop=stop, direction=direction, url=url)
 
-            msg = 'Arrêt "{s}" (direction {d})\n{t}'.format(s=stop, d=d, t='\n'.join(departure_times))
+            msg = 'Arrêt "{s}" (direction {d})\n{t}'.format(s=stop, d=direction, t='\n'.join(departure_times))
             return {
                 'messages': [
                     BasicMessage(msg=msg).payload,
