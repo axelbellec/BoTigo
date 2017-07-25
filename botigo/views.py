@@ -39,7 +39,11 @@ def webhook_apiai():
 
 
 def processRequest(request):
-    last_context = request['result']['contexts'][-1]
+
+    # Contexts list may be empty
+    contexts = request['result'].get('contexts', None)
+    last_context = contexts[-1] if contexts else None
+    log.info('last context', context=last_context)
 
     if request['result'].get('action') == 'search_next_departures':
         stop = last_context.get('parameters', {}).get('stop', None)
