@@ -1,6 +1,8 @@
+import re
+import unicodedata
+
 import requests
 import bs4
-import re
 
 from botigo import mocks
 
@@ -17,3 +19,16 @@ departure_times = [
     REGEX_ESCAPE_MULTIPLE_SPACES.sub(' ', tag.get_text().strip())
     for tag in soup.find_all('span', attrs={'class': 'inline-left'})
 ]
+
+
+def to_ascii_chars(string):
+    """ Replace special characters by ascii characters.
+    Example:
+        >>> string = 'ça fonctionne plutôt bien'
+        >>> to_ascii_chars(string)
+        ... 'ca fonctionne plutot bien'
+    """
+    return (unicodedata
+            .normalize('NFKD', string)
+            .encode('ascii', 'ignore')
+            .decode('utf-8'))

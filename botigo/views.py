@@ -8,7 +8,7 @@ from botigo import app, NAMESPACE
 from botigo import config
 from botigo import tracing
 from botigo.messaging import FacebookSimpleMessage, BasicMessage
-from botigo.utils import departure_times
+from botigo.utils import to_ascii_chars, departure_times
 
 
 log = tracing.tracer(NAMESPACE)
@@ -46,11 +46,12 @@ def processRequest(request):
     log.info('last context', context=last_context)
 
     if request['result'].get('action') == 'search_next_departures':
-        stop = last_context.get('parameters', {}).get('stop', None)
-        direction = last_context.get('parameters', {}).get('direction', None)
+        stop = to_ascii_chars(last_context.get('parameters', {}).get('stop', ''))
+        direction = to_ascii_chars(last_context.get('parameters', {}).get('direction', ''))
 
         if stop and direction:
             log.info('finding next departure times', stop=stop, direction=direction)
+
             msg = '\n'.join(departure_times)
             return {
                 'messages': [
