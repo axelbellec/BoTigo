@@ -1,14 +1,12 @@
-from flask import Flask, url_for
+import os
 
-NAMESPACE = 'botigo'
+from flask import Flask
 
+# Init App
+NAMESPACE = 'app'
 app = Flask(NAMESPACE)
 
-# Setup the application
+# Configure the application
 app.config.from_object('botigo.config')
 
-# Add the top level to the import path
-import sys
-sys.path.append('..')
-
-from botigo import api
+from botigo import views

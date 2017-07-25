@@ -33,7 +33,13 @@ $ docker exec -it botigo_server_1 bash
 
 Then you can launch the app :
 ```sh
-$ python botigo/main.py
+$ python manage.py runserver
+```
+
+Using `ngrok`:
+
+```
+$ ngrok http -host-header=rewrite 127.0.0.1:5000
 ```
 
 ## Heroku deployment

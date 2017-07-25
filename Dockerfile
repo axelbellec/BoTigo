@@ -12,4 +12,4 @@ RUN pip install -r /tmp/requirements.txt && rm -rf /root/.cache/pip/*
 
 COPY . /botigo
 
-CMD ["python", "botigo/main.py"]
+CMD ["python", "bot/manage.py", "runserver"]
